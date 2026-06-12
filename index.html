@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第五人格檔案館 | 莊園秘聞</title>
+    <style>
+        :root {
+            --primary-gold: #b8860b;
+            --bg-dark: #121212;
+            --card-bg: #1e1e1e;
+            --text-gray: #d4d4d4;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-gray);
+            font-family: 'Microsoft JhengHei', sans-serif;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* 頁首設計 */
+        header {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--primary-gold);
+        }
+
+        header h1 {
+            color: var(--primary-gold);
+            font-size: 3rem;
+            margin: 0;
+            text-shadow: 3px 3px 5px #000;
+        }
+
+        /* 搜尋欄 */
+        .search-container {
+            text-align: center;
+            margin: -25px auto 30px;
+        }
+
+        #searchInput {
+            width: 60%;
+            max-width: 400px;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 2px solid var(--primary-gold);
+            background: #222;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 角色卡片網格 */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .char-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #333;
+            transition: 0.3s;
+        }
+
+        .char-card:hover {
+            transform: scale(1.03);
+            border-color: var(--primary-gold);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .char-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            filter: grayscale(30%);
+        }
+
+        .char-content {
+            padding: 20px;
+        }
+
+        .char-type {
+            font-size: 12px;
+            color: var(--primary-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .char-name {
+            font-size: 24px;
+            margin: 5px 0;
+            color: #fff;
+        }
+
+        .skill-desc {
+            font-size: 14px;
+            height: 60px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .video-btn {
+            display: block;
+            background: #444;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .video-btn:hover {
+            background: var(--primary-gold);
+        }
+
+        footer {
+            text-align: center;
+            padding: 50px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>第五人格 ‧ 莊園檔案</h1>
+    <p>IDENTITY V SURVIVORS & HUNTERS</p>
+</header>
+
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="輸入角色名稱搜尋..." onkeyup="filterCharacters()">
+</div>
+
+<div class="container">
+    <div class="character-grid" id="characterGrid">
+        <!-- 角色卡片會由 JavaScript 自動產生 -->
+    </div>
+</div>
+
+<footer>
+    <p>© 2023 第五人格玩家愛好者網站 | 資料來源：官方網站與社群</p>
+</footer>
+
+<script>
+    // 這裡就是你的「資料庫」
+    // 以後想增加角色，只要按格式加在下面括號內即可
+    const characters = [
+        {
+            name: "園丁 (艾瑪·伍茲)",
+            type: "求生者",
+            img: "https://img2.tapimg.com/bbcode/images/737e3d81b452077e5d8a9e6d0a794017.jpg",
+            desc: "擁有破壞狂歡之椅的能力，開局能獲得守護效果，容錯率高。",
+            video: "https://www.youtube.com/results?search_query=第五人格+園丁+攻略"
+        },
+        {
+            name: "「杰克」",
+            type: "監管者",
+            img: "https://img.nga.178.com/attachments/mon_201804/16/gvQ5-f7y7Z17T3cS1hc-u0.jpg",
+            desc: "擅長進入隱身狀態並使用霧刃進行遠程攻擊，極具壓迫感。",
+            video: "https://www.youtube.com/results?search_query=第五人格+杰克+攻略"
+        },
+        {
+            name: "傭兵 (奈布·薩貝達)",
+            type: "求生者",
+            img: "https://pic.baike.soso.com/p/20180517/20180517112019-2045558197_jpg_600_826_48227.jpg",
+            desc: "擁有護肘可以快速位移，受傷後有延遲倒地效果，是強大的救人位。",
+            video: "https://www.youtube.com/results?search_query=第五人格+傭兵+攻略"
+        },
+        // 你可以繼續增加角色...
+    ];
+
+    // 將資料顯示在網頁上的函式
+    function displayCharacters(data) {
+        const grid = document.getElementById('characterGrid');
+        grid.innerHTML = ""; // 先清空
+
+        data.forEach(char => {
+            const card = `
+                <div class="char-card">
+                    <img src="${char.img}" class="char-img" alt="${char.name}">
+                    <div class="char-content">
+                        <span class="char-type">${char.type}</span>
+                        <div class="char-name">${char.name}</div>
+                        <p class="skill-desc">${char.desc}</p>
+                        <a href="${char.video}" target="_blank" class="video-btn">觀看影片教學</a>
+                    </div>
+                </div>
+            `;
+            grid.innerHTML += card;
+        });
+    }
+
+    // 搜尋功能
+    function filterCharacters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = characters.filter(char => 
+            char.name.toLowerCase().includes(searchTerm) || 
+            char.type.toLowerCase().includes(searchTerm)
+        );
+        displayCharacters(filtered);
+    }
+
+    // 初始化顯示所有角色
+    displayCharacters(characters);
+</script>
+
+</body>
+</html>
